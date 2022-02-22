@@ -24,10 +24,10 @@ instance (AddGroup a, MulGroup a) => MulGroup (Tri a) where
 addTri :: Additive a => Tri a -> Tri a -> Tri a
 addTri (a1,a2,a3) (a1',a2',a3') = (a1+a1',a2+a2',a3+a3') 
 zeroTri :: Additive a => Tri a
-zeroTri = (0,0,0)
+zeroTri = (zero,zero,zero)
 
 oneTri :: Additive a => Tri a
-oneTri = (1,0,0)
+oneTri = (one,one,one)
 
 mulTri :: Additive a => Tri a -> Tri a -> Tri a
 mulTri = undefined
@@ -37,8 +37,6 @@ negateTri = undefined
 
 recipTri :: Additive a => Tri a -> Tri a
 recipTri = undefined
-
-
 
 (addTri, zeroTri, mulTri, oneTri, negateTri, recipTri) = undefined
 
