@@ -1,6 +1,6 @@
 {-# LANGUAGE FlexibleContexts, FlexibleInstances #-}
 {-# LANGUAGE TypeSynonymInstances #-}
-module NewtonsMethod where
+
 import Prelude hiding ((+), (-), (*), (/), negate, recip, (^),pi , sin, cos, exp, fromInteger, fromRational)
 import DSLsofMath.Algebra
 import DSLsofMath.FunExp
