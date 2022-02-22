@@ -2,8 +2,9 @@
 {-# LANGUAGE TypeSynonymInstances #-}
 
 import Prelude hiding ((+), (-), (*), (/), negate, recip, (^),pi , sin, cos, exp, fromInteger, fromRational)
-import DSLsofMath.Algebra
-import DSLsofMath.FunExp
+import DSLsofMath.L.DSLsofMath.Algebra
+import DSLsofMath.L.DSLsofMath.FunExp 
+
 type Tri a = (a, a, a)
 type TriFun a = Tri (a ! a) -- = (a ! a, a ! a, a ! a)
 type FunTri a = a ! Tri a -- = a ! (a, a, a)
