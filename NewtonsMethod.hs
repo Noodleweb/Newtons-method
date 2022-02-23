@@ -4,6 +4,7 @@
 import Prelude hiding ((+), (-), (*), (/), negate, recip, (^),pi , sin, cos, exp, fromInteger, fromRational)
 import DSLsofMath.L.DSLsofMath.Algebra
 import DSLsofMath.L.DSLsofMath.FunExp 
+import DSLsofMath.L.DSLsofMath.Algebra (AddGroup, MulGroup)
 
 type Tri a = (a, a, a)
 type TriFun a = Tri (a -> a) -- = (a -> a, a ->  a, a -> a)
@@ -31,14 +32,14 @@ zeroTri = (zero,zero,zero)
 oneTri :: (Additive a, Multiplicative a) => Tri a
 oneTri = (one,one,one)
 
-mulTri :: Additive a => Tri a -> Tri a -> Tri a
-mulTri = undefined
+mulTri :: Multiplicative a => Tri a -> Tri a -> Tri a
+mulTri (a1,a2,a3) (a1',a2',a3') = (a1*a1',a2*a2',a3*a3') 
 
-negateTri :: Additive a => Tri a -> Tri a 
-negateTri = undefined
+negateTri :: AddGroup a  => Tri a -> Tri a 
+negateTri (a1,a2,a3) = (neg a1,neg a2,neg a3)
 
-recipTri :: Additive a => Tri a -> Tri a
-recipTri = undefined
+recipTri :: MulGroup a => Tri a -> Tri a
+recipTri (a1,a2,a3) = (recip a1,recip a2,recip a3)
 
 --(addTri, zeroTri, mulTri, oneTri, negateTri, recipTri) = undefined
 
