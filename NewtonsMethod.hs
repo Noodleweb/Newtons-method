@@ -6,6 +6,7 @@ import DSLsofMath.L.DSLsofMath.Algebra
 import DSLsofMath.L.DSLsofMath.FunExp
 import DSLsofMath.L.DSLsofMath.Algebra (AddGroup, MulGroup)
 
+-- Daniel Nikolaev, Björn Solér, Axel Siwmark – Grupp 3
 
 data Result a = Maxima R | Minima R | Dunno R
     deriving(Show)
@@ -14,7 +15,7 @@ type Tri a = (a, a, a)
 type TriFun a = Tri (a -> a) -- = (a -> a, a ->  a, a -> a)
 type FunTri a = a -> Tri a -- = a -> (a, a, a)
 
-type R = Double 
+type R = Double
 
 instance (Additive a ) => Additive (Tri a) where
     (+) = addTri
@@ -49,9 +50,8 @@ recipTri (x,x',x'') = (y, y', y'')
   where
         y = recip x
         y' = negate (y*y) * x'
-        y'' = (x'*x*x - x''*x*x)*y*y*y*y
+        y'' = ((x+x)*x'*x' - x''*x*x)*y*y*y*y
 
---(addTri, zeroTri, mulTri, oneTri, negateTri, recipTri) = undefined
 
 instance Transcendental a => Transcendental (Tri a) where
     pi = piTri
@@ -63,85 +63,54 @@ piTri :: Transcendental a => Tri a
 piTri = (pi, zero, zero)
 
 sinTri :: Transcendental a => Tri a -> Tri a
-sinTri (x,x',x'') = (sin x, cos x * x', negate (sin x) * x' + cos x * x'')
+sinTri (x,x',x'') = (sin x, cos x * x', negate (sin x) * x'* x' + cos x * x'')
 
 cosTri ::Transcendental a => Tri a -> Tri a
-cosTri (x, x', x'') = (cos x, negate (sin x) * x', negate (sin x) * x'' + negate (cos x) * x')
+cosTri (x, x', x'') = (cos x, negate (sin x) * x', negate (sin x) * x'' + negate (cos x) * x'* x')
 
 expTri ::Transcendental a => Tri a -> Tri a
-expTri (x, x', x'') = (exp x, exp x * x', exp x * x' + exp x * x'')
+expTri (x, x', x'') = (exp x, exp x * x', exp x * x'*x' + exp x * x'')
 
-pythagorean :: Transcendental a => Tri a -> Tri a 
+pythagorean :: Transcendental a => Tri a -> Tri a
 pythagorean = sin*sin+cos*cos
 
---test1 :: (Transcendental a, Additive a) => Tri a -> Tri a -> Bool
---test1 t1 t2 = undefined
--- a -> (a, a, a) /= (a -> a , a -> a , a -> a )
---evalDD :: Transcendental a => FunExp -> FunTri a
---evalDD expression = \x -> (eval x, eval (derive x), eval (derive (derive x)))
---  where 
-
-
-step1 :: Transcendental a => FunExp -> TriFun a
-step1 f =  (eval f , eval (derive f),  eval (derive (derive f)))
-
-step2 :: Transcendental a => TriFun a -> FunTri a
-step2 (a,b,c) x = (a x, b x, c x)
-
 evalDD :: Transcendental a => FunExp -> FunTri a
-evalDD = step2 . step1
+evalDD f x =  (eval f x, eval (derive f) x, eval(derive (derive f)) x)
 
--- Group homorphism 
--- (evalDD, (*), ('*'))
--- evalDD (Mul f g) = mulTri (evalDD f) (evalDD g)
--- 
-
-
-
-        -- (a,a,a) -> (a,a,a)
 newton :: (Tri R -> Tri R) -> R -> R -> R
-newton f e x    | abs fx < e = x
-                | fx' /= 0     = newton f e next
-                | otherwise    = newton f e (x + e)
-    where 
+newton f e x    | abs fx < e = x                      -- Returns an x that is very close to a zero point for the function
+                | fx' /= 0     = newton f e next      --else if
+                | otherwise    = newton f e (x + e)   --else
+    where
         fx   = fst' (f (var x))
         fx'  = snd'(f (var x)) -- should be f' x (derivative of f at x) 
         next = x - fx / fx'
 
 test0 x = x*x-- one (double) zero, in zero
 test1 x = x*x - one -- two zeros, in +-one
-test2 x = sin x -- many, many zeros (in n  p for all n ::Z)
+test2 x = sin x -- many, many zeros (in n * pi for all n ::Z)
 --test3 n x y = y^n - constTri x -- test3 n x, has zero in "nth roots of x"
 
---map (newton test1 0.001) [-2.0, −1.5..2.0]
-
-fst' :: (a,a,a) -> a
+fst' :: Tri a -> a
 fst' (a,_,_) = a
 
-snd' :: (a,a,a) -> a
+snd' :: Tri a  -> a
 snd' (_,a,_) = a
 
-trd' :: (a,a,a) -> a
+trd' :: Tri a  -> a
 trd' (_,_,a) = a
-
-
 
 var :: (Additive a, Multiplicative a) => a -> Tri a
 var x = (x, one, zero)
 
-power :: Int -> Int -> Int
-power n k | k < 0 = error "power: negative argument"
-            | k == 0 = 1
-            | otherwise = n * power n (k-1)
-
-derTri :: (Tri a-> Tri a) -> (Tri a->Tri a) 
-derTri f = \x -> (snd'(f x), trd'(f x), fst'(f x))
+derTri :: (Tri a-> Tri a) -> (Tri a->Tri a)
+derTri f = \x -> (snd'(f x), trd'(f x), fst'(f x)) 
 
 optim :: (Tri R -> Tri R) -> R -> R -> Result R
 optim f e x | f''x < 0   = Maxima (fst' (f (var xValue)))
             | f''x > 0   = Minima (fst' (f (var xValue)))
             | otherwise  = Dunno (fst' (f (var xValue)))
-    where 
+    where
         f' = derTri f
         xValue = newton f' e x
         f''x = trd' (f (var xValue))
